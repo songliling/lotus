@@ -3,8 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/hd"
+	"github.com/filecoin-project/lotus/api"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"os"
 
+	"github.com/cosmos/go-bip39"
 	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/filecoin-project/lotus/chain/wallet"
 	_ "github.com/filecoin-project/lotus/lib/sigs/bls"
@@ -19,7 +23,7 @@ func main() {
 		&cli.StringFlag{
 			Name:    "type",
 			Aliases: []string{"t"},
-			Value:   "bls",
+			Value:   "secp256k1",
 			Usage:   "specify key type to generate (bls or secp256k1)",
 		},
 	}
@@ -40,11 +44,40 @@ func main() {
 			return fmt.Errorf("unrecognized key type: %q", cctx.String("type"))
 		}
 
-		kaddr, err := w.WalletNew(cctx.Context, kt)
+		// cosmos mnemonic handler
+		mnemonic := "fit hint laugh oil power ahead insane rally flag car legal fix avoid lamp secret police involve enable paper birth reduce obey pudding ridge"
+		// coinType 364 is lambda type, should change to filecoin type number
+		hdParams := hd.NewParams(44, 364, 0, false, 1)
+		seed, err := bip39.MnemonicToByteArray(mnemonic)
 		if err != nil {
-			return err
+			fmt.Println("bip39 mnemonic to array error: ", err)
+			os.Exit(1)
+		}
+		masterPriv, ch := hd.ComputeMastersFromSeed(seed)
+		derivedPriv, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hdParams.String())
+		if err != nil {
+			fmt.Println("DerivePrivateKeyForPath error: ", err)
+			os.Exit(1)
+		}
+		priKey := secp256k1.PrivKeySecp256k1(derivedPriv)
+
+		// test wallet for kangbo
+		kaddr, err := w.WalletNewKB(cctx.Context, kt, priKey[:])
+		if err != nil {
+			fmt.Println("WalletNewKB error: ", err)
+			os.Exit(1)
 		}
 
+		// sign message
+		// may be use WalletSignMessage
+		signMessage := []byte("hello world")
+		signature, err := w.WalletSign(cctx.Context, kaddr, signMessage, api.MsgMeta{})
+		if err != nil {
+			fmt.Println("WalletSign error: ", err)
+		}
+		fmt.Printf("success signature is: %x \n", signature.Data)
+
+		// export privateKey on desk
 		ki, err := w.WalletExport(cctx.Context, kaddr)
 		if err != nil {
 			return err

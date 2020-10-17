@@ -234,6 +234,39 @@ func (w *LocalWallet) SetDefault(a address.Address) error {
 	return nil
 }
 
+func (w *LocalWallet) WalletNewKB(ctx context.Context, typ types.KeyType, pk []byte) (address.Address, error) {
+	w.lk.Lock()
+	defer w.lk.Unlock()
+
+	tk := types.KeyInfo{
+		Type:       typ,
+		PrivateKey: pk,
+	}
+
+	newKey, err := NewKey(tk)
+	if err != nil {
+		return address.Address{}, err
+	}
+
+	if err := w.keystore.Put(KNamePrefix+newKey.Address.String(), newKey.KeyInfo); err != nil {
+		return address.Undef, xerrors.Errorf("saving to keystore: %w", err)
+	}
+	w.keys[newKey.Address] = newKey
+
+	_, err = w.keystore.Get(KDefault)
+	if err != nil {
+		if !xerrors.Is(err, types.ErrKeyInfoNotFound) {
+			return address.Undef, err
+		}
+
+		if err := w.keystore.Put(KDefault, newKey.KeyInfo); err != nil {
+			return address.Undef, xerrors.Errorf("failed to set new key as default: %w", err)
+		}
+	}
+
+	return newKey.Address, nil
+}
+
 func (w *LocalWallet) WalletNew(ctx context.Context, typ types.KeyType) (address.Address, error) {
 	w.lk.Lock()
 	defer w.lk.Unlock()

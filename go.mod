@@ -13,6 +13,8 @@ require (
 	github.com/buger/goterm v0.0.0-20200322175922-2f3e71b85129
 	github.com/cockroachdb/pebble v0.0.0-20200916222308-4e219a90ba5b
 	github.com/coreos/go-systemd/v22 v22.0.0
+	github.com/cosmos/cosmos-sdk v0.37.4
+	github.com/cosmos/go-bip39 v0.0.0-20180618194314-52158e4697b8
 	github.com/detailyang/go-fallocate v0.0.0-20180908115635-432fa640bd2e
 	github.com/dgraph-io/badger/v2 v2.2007.2
 	github.com/docker/go-units v0.4.0
@@ -86,6 +88,7 @@ require (
 	github.com/ipld/go-car v0.1.1-0.20200923150018-8cdef32e2da4
 	github.com/ipld/go-ipld-prime v0.5.1-0.20200828233916-988837377a7f
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.7.0
 	github.com/libp2p/go-eventbus v0.2.1
 	github.com/libp2p/go-libp2p v0.11.0
@@ -117,7 +120,9 @@ require (
 	github.com/raulk/clock v1.1.0
 	github.com/stretchr/testify v1.6.1
 	github.com/supranational/blst v0.1.1
-	github.com/syndtr/goleveldb v1.0.0
+	github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d
+	github.com/tendermint/go-amino v0.15.1 // indirect
+	github.com/tendermint/tendermint v0.32.7
 	github.com/urfave/cli/v2 v2.2.0
 	github.com/whyrusleeping/bencher v0.0.0-20190829221104-bb6607aa8bba
 	github.com/whyrusleeping/cbor-gen v0.0.0-20200826160007-0b9f6c5fb163
@@ -150,3 +155,5 @@ replace github.com/filecoin-project/test-vectors => ./extern/test-vectors
 replace github.com/supranational/blst => ./extern/fil-blst/blst
 
 replace github.com/filecoin-project/fil-blst => ./extern/fil-blst
+
+replace github.com/LambdaIM/lambda => /Users/lilingsong/go-project/src/github.com/LambdaIM/lambda
